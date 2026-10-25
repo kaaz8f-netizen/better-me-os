@@ -245,7 +245,7 @@ const WEEK_MAX = 700 + 20+20+20+10+20;
 
 /* ---------- state & storage ---------- */
 const S = { meta:{ settings:{...SETTINGS_DEF}, gym:JSON.parse(JSON.stringify(GYM_DEF)), money:JSON.parse(JSON.stringify(MONEY_DEF)) }, days:{}, sessions:{}, months:{}, goals:{} };
-let db = null, TAB = 'today', CUR = logicalToday(), SESS = null, confirmKey = null, renderPending = false;
+let db = null, TAB = 'today', CUR = null, SESS = null, confirmKey = null, renderPending = false;
 const timers = {}, chains = {};
 
 function localLoad(){ try{ const raw = localStorage.getItem('bmo_v1'); if(!raw) return; const o = JSON.parse(raw); for(const k of ['days','sessions','months','goals']) if(o[k]) S[k]=o[k]; if(o.meta){ for(const k of ['settings','gym','money']) if(o.meta[k]) S.meta[k]=o.meta[k]; } }catch(e){} }
@@ -410,7 +410,6 @@ function render(){
   const f={today:vToday,body:vBody,gym:vGym,money:vMoney,goals:vGoals,week:vWeek}[TAB];
   view.innerHTML=f();
   const cv=view.querySelector('canvas'); if(cv) drawChart(cv);
-  window.scrollTo({top:Math.min(window.scrollY,0)});
 }
 
 function vToday(){
@@ -628,6 +627,7 @@ try{ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change'
 new MutationObserver(()=>{ const cv=view.querySelector('canvas'); if(cv) drawChart(cv); }).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 
 /* ---------- boot ---------- */
+CUR = logicalToday();
 try{ const t=localStorage.getItem('bmo_tab'); if(t && ['today','body','gym','money','goals','week'].includes(t)) TAB=t; }catch(e){}
 localLoad();
 render();
